@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Listening Test</title>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<style>
+    .center {
+        text-align: center;
+    }
+
+    .btn_wrap {
+        width: 25%;
+        height: 252px;
+        border: 2px solid black;
+        margin: 3%;
+        float: left;
+
+    }
+
+    .btn_wrap_text {
+        width: 100% -8px;
+        height: 200px;
+        margin: 5px;
+        border-radius: 10px;
+        border: 2px solid black;
+
+    }
+
+    .bg_red {
+        background-color: red;
+    }
+
+    .bg_green {
+        background-color: green;
+    }
+
+    .btn {
+        width: 100%;
+        height: 38px;
+    }
+
+    .label_text {
+        font-size: 40px;
+    }
+
+    .btn_submit {
+        width: 20%;
+        height: 50px;
+        margin-top: 10px;
+
+    }
+
+    .input_text {
+        width: 80%;
+    }
+
+    .input_text_wrap {
+        margin-left: 20%;
+        text-align: left;
+    }
+</style>
+
+<body>
+{% if first %}
+    <div id='welcome' class="center">
+{% else %}
+    <div id='welcome' class="center" style="display: none">
+{% endif %}
+<h1>Welcome to Listening Test</h1>
+Introduction: This is a listening test website <br>
+You should choose A or B after listening<br>
+Finally, you need to do a survey<br><br><br>
+<h1>A Simple Survey</h1>
+
+<label for='gender'>gender:</label>
+<select id='gender'>
+    <option value="male">male</option>
+    <option value="female">female</option>
+</select>
+
+<label for='age'>age:</label>
+<input type="text" id='age' value=""/>
+
+<label for='hearing'>hearing:</label>
+<select id='hearing'>
+    <option value="good">good</option>
+    <option value="poor">poor</option>
+</select>
+
+<br><br><br>
+<button id="start" style="font-size: 60px;">Start</button>
+</div>
+{% if first %}
+    <div id='main' style="display: none">
+{% else %}
+    <div id='main'>
+{% endif %}
+<audio src="/static/{{ audio_a }}" id="audio_A">
+    Your browser does not support the audio element.
+</audio>
+<audio src="/static/{{ audio_b }}" id="audio_B">
+    Your browser does not support the audio element.
+</audio>
+<audio src="/static/{{ audio_c }}" id="audio_C">
+    Your browser does not support the audio element.
+</audio>
+<div class="center">
+    <h1>Listening Test</h1>
+    <h2>{{ msg }}</h2>
+    <div style="margin: 0px 18% 0px 22%">
+        <div class="btn_wrap">
+            <div class="btn_wrap_text bg_red" id="wrap_A">
+                <p class="center label_text">A</p>
+            </div>
+            <button class="btn" id="btn_A">Listen</button>
+        </div>
+        <div class="btn_wrap">
+            <div class="btn_wrap_text bg_green">
+                <p class="center label_text">PROP</p>
+            </div>
+            <button class="btn" id="btn_B">Listen</button>
+        </div>
+        <div class="btn_wrap">
+            <div class="btn_wrap_text bg_red" id="wrap_C">
+                <p class="center label_text">B</p>
+            </div>
+            <button class="btn" id="btn_C">Listen</button>
+        </div>
+    </div>
+    <div style="clear:both;">
+        <button class="btn_submit" id="btn_submit">Submit</button>
+    </div>
+    <div class="input_text_wrap">
+        <div>
+            <p>Comments</p>
+            <input type="text" id="comment" class="input_text"/>
+        </div>
+
+    </div>
+
+</div>
+</div>
+
+</body>
+<script>
+    $("#start").click(function () {
+        $("#welcome").css("display", "none");
+        $("#main").css("display", "inline");
+
+        url = '/survey?gender=' + $('#gender').val() + "&age=" + $("#age").val() + "&hearing=" + $("#hearing").val();
+        $.get(url, function (data, status) {
+
+        });
+    });
+
+    var audio_a = $("audio_a");
+    $("#wrap_A").click(function () {
+        if ($(this).hasClass("bg_red")) {
+            $("#wrap_C").addClass("bg_red");
+            $("#wrap_C").removeClass("bg_green");
+            $(this).addClass("bg_green");
+            $(this).removeClass("bg_red");
+        }
+    });
+
+    $("#wrap_C").click(function () {
+        if ($(this).hasClass("bg_red")) {
+            $("#wrap_A").addClass("bg_red");
+            $("#wrap_A").removeClass("bg_green");
+            $(this).addClass("bg_green");
+            $(this).removeClass("bg_red");
+        }
+    });
+    var audio_A = $("#audio_A")[0];
+    var audio_B = $("#audio_B")[0];
+    var audio_C = $("#audio_C")[0];
+
+    audio_A.addEventListener('ended', function () {
+        $("#btn_A").text("Listen");
+    }, false);
+    audio_B.addEventListener('ended', function () {
+        $("#btn_B").text("Listen");
+    }, false);
+    audio_C.addEventListener('ended', function () {
+        $("#btn_C").text("Listen");
+    }, false);
+
+
+    $("#btn_A").click(function () {
+        if ($(this).text() == "Listen") {
+            audio_A.play();
+            $(this).text("Pause");
+        } else {
+            audio_A.pause();
+            $(this).text("Listen");
+        }
+    });
+    $("#btn_B").click(function () {
+        if ($(this).text() == "Listen") {
+            audio_B.play();
+            $(this).text("Pause");
+        } else {
+            audio_B.pause();
+            $(this).text("Listen");
+        }
+    });
+    $("#btn_C").click(function () {
+        if ($(this).text() == "Listen") {
+            audio_C.play();
+            $(this).text("Pause");
+        } else {
+            audio_C.pause();
+            $(this).text("Listen");
+        }
+    });
+
+    $('#btn_submit').click(function () {
+        if ($("#wrap_A").hasClass("bg_green"))
+            window.location.href = "/submit?result=A&comment=" + $("#comment").val();
+        else if ($("#wrap_C").hasClass("bg_green"))
+            window.location.href = "/submit?result=B&comment=" + $("#comment").val();
+        else
+            alert("select A or C");
+    });
+
+
+</script>
+
+
+</html>
